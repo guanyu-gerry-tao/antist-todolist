@@ -1,7 +1,8 @@
 import '../App.css'
 import './AddNewTask.css'
 
-import type { Actions, ProjectId, States, TaskId, TaskType } from '../utils/type.ts';
+import type { ProjectId, TaskId, TaskType } from '../utils/type.ts';
+
 import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
 
 import Project from './ProjectButton.tsx'

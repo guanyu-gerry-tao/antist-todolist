@@ -15,6 +15,16 @@
   /* p-3 */
   box-shadow: rgba(163, 163, 163, 0.295) 0px 2px 5px 0px;
   height: 1rem;
+  transition: all 0.3s ease;
+}
+
+.projectButton:hover {
+  background-color: #fcfcfc;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px 0px;
+}
+
+.projectButton:hover .projectButtonInput {
+  font-weight: 800;
 }
 
 .projectButtonContent {
@@ -25,10 +35,12 @@
   position: relative;
   width: 11.25rem;
   /* w-45 = 45*0.25rem */
+  font-family: "Roboto", sans-serif;
   background: transparent;
   border: none;
   outline: none;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .projectDragHandlerIcon {

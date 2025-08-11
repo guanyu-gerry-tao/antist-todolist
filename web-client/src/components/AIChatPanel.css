@@ -1,0 +1,192 @@
+/* 主容器样式 - 聊天面板的最外层容器，包含位置、大小、阴影等基础样式 */
+.aiChatPanelContainer {
+    position: fixed;
+    right: 0;
+    height: 100%;
+    width: 30rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* ChatUI Kit 主容器 - 控制整个聊天组件的宽度 */
+/* 覆盖 ChatUI Kit 的默认样式 */
+.aiChatPanelContainer .cs-main-container {
+    width: 30rem;
+    background-color: transparent;
+}
+
+/* 聊天容器 - 包含消息列表和输入框的容器（当前为空） */
+.aiChatPanelContainer .cs-chat-container {
+    background-color: transparent;
+}
+
+/* 消息列表区域 - 显示所有聊天消息的滚动区域 */
+.aiChatPanelContainer .cs-message-list {
+    background-color: transparent;
+    /* padding: 10px; */
+}
+
+.cs-message-input__content-editor-container {
+    background-color: transparent;
+}
+
+/* 单个消息项 - 每条消息的基础样式，控制消息间距 */
+.aiChatPanelContainer .cs-message {
+    margin-bottom: 12px;
+}
+
+/* 接收消息气泡 - AI发送的消息样式，淡蓝色背景，左下角特殊圆角 */
+.aiChatPanelContainer .cs-message--incoming {
+    border-radius: 18px 18px 18px 4px;
+}
+
+/* 发送消息气泡 - 用户发送的消息样式，蓝色背景，右下角特殊圆角 */
+.aiChatPanelContainer .cs-message--outgoing {
+    border-radius: 18px 18px 4px 18px;
+}
+
+.aiChatPanelContainer .cs-message__content {
+    background-color: transparent;
+    padding-top: 0.2em;
+}
+
+/* 消息输入区域 - 包含输入框和发送按钮的底部区域 */
+.aiChatPanelContainer .cs-message-input {
+    /* background-color: #ffffff; */
+    border-top: 1px solid #e0e0e0;
+    background-color: transparent;
+    padding: 10px;
+}
+
+/* 输入框编辑器 - 用户输入文本的区域，圆角设计 */
+.aiChatPanelContainer .cs-message-input__content-editor {
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    background-color: transparent;
+    padding: 10px 15px;
+    /* background-color: #ffffff; */
+}
+
+/* 发送按钮 - 圆形的消息发送按钮 */
+.aiChatPanelContainer .cs-message-input__send-button {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+/* 打字指示器 - 显示AI正在输入时的动画效果 */
+.aiChatPanelContainer .cs-typing-indicator {
+    background-color: transparent;
+    border-radius: 18px;
+    padding: 8px 12px;
+}
+
+/* 关闭按钮 - 聊天面板的关闭按钮，橙红色设计 */
+/* 自定义关闭按钮样式 */
+.aiChatPanelContainer .close-button {
+    background-color: #ff5722;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* 关闭按钮悬停效果 - 鼠标悬停时的颜色变化 */
+.aiChatPanelContainer .close-button:hover {
+    background-color: #e64a19;
+}
+
+/* 任务卡片容器 - 显示AI生成任务的卡片，紫色渐变背景 */
+/* 任务卡片样式增强 */
+.aiChatPanelContainer .task-card {
+    background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 8px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 任务标题 - 任务卡片中的主标题文字 */
+.aiChatPanelContainer .task-card .task-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+/* 任务描述 - 任务卡片中的详细描述文字 */
+.aiChatPanelContainer .task-card .task-description {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.aiChatPanelContainer .cs-message-input__content-editor-wrapper {
+    background-color: transparent;
+}
+
+/* 接受任务按钮 - 用户点击接受任务的绿色按钮 */
+.aiChatPanelContainer .task-card .accept-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 接受按钮悬停效果 - 鼠标悬停时的动画和颜色变化 */
+.aiChatPanelContainer .task-card .accept-button:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sender-name {
+    font-weight: bold;
+    color: #a8a8a8;
+    padding: 0em 1.2em;
+    font-family: 'Helvetica Neue', Segoe UI, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+}
+
+.sender-name.user {
+    text-align: right;
+}
+
+.cs-message-input__tools .cs-button--send {
+    align-self: auto;
+}
+
+.cs-message-input__tools .cs-button--attachment {
+    align-self: auto;
+}
+
+.ps--active-x>.ps__rail-x,
+.ps--active-y>.ps__rail-y {
+    display: none;
+}
+
+.aiChatPanelContainerHeaderTitle {
+    margin-left: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    font-family: "Roboto", sans-serif;
+    font-weight: 700;
+    font-size: x-large;
+
+}

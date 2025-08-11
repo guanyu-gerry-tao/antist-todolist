@@ -34,6 +34,7 @@
 
 .todoColumnTitle {
   position: relative;
+  font-family: "Roboto", sans-serif;
   font-size: 2.25rem;
   /* text-4xl */
   height: 3.75rem;

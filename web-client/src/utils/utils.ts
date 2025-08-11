@@ -1,5 +1,6 @@
 import { th } from 'motion/react-client';
-import type { TaskType, ProjectType, StatusType, BulkPayload, SetStates, TaskData, ProjectData, StatusData, States, UserProfileData } from './type.ts';
+import type { TaskType, ProjectType, StatusType, BulkPayload, TaskData, ProjectData, StatusData, UserProfileData } from './type.ts';
+import type { States, SetStates } from './states.ts';
 import type { Updater } from 'use-immer';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -173,17 +174,13 @@ export const optimisticUIUpdate = async (setState: SetStates, payload: BulkPaylo
           draft[taskId] = {
             ...op.data as TaskType
           };
-          console.log(`optimisticUIUpdate: task added: ${taskId}`);
         } else if (op.operation === 'update') {
           const { id, updatedFields } = op.data as { id: string; updatedFields: Partial<TaskType> };
           if (draft[id]) {
             Object.assign(draft[id], updatedFields);
-            console.log(`optimisticUIUpdate: task updated: ${id}`);
           }
         } else if (op.operation === 'delete') {
-          console.log(`optimisticUIUpdate: task deleted: ${taskId}`);
           delete draft[taskId];
-          console.log('tasks after deletion in set', JSON.stringify(draft));
         }
       });
     } else if (op.type === 'project') {
@@ -193,16 +190,13 @@ export const optimisticUIUpdate = async (setState: SetStates, payload: BulkPaylo
           draft[projectId] = {
             ...op.data as ProjectType
           };
-          console.log(`optimisticUIUpdate: project added: ${projectId}`);
         } else if (op.operation === 'update') {
           const { id, updatedFields } = op.data as { id: string; updatedFields: Partial<ProjectType> };
           if (draft[id]) {
             Object.assign(draft[id], updatedFields);
-            console.log(`optimisticUIUpdate: project updated: ${id}`);
           }
         } else if (op.operation === 'delete') {
           delete draft[projectId];
-          console.log(`optimisticUIUpdate: project deleted: ${projectId}`);
         }
       });
     } else if (op.type === 'status') {

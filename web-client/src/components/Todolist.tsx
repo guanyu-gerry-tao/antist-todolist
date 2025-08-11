@@ -6,12 +6,13 @@ import Menubar from './Menubar.tsx'
 import TodoColumn from './TodoColumn.tsx'
 import AIChatPanel from './AIChatPanel.tsx'
 
-import type { Actions, States, StatusData, StatusType } from '../utils/type.ts'
+import type { StatusData, StatusType } from '../utils/type.ts'
+import type { States } from '../utils/states.ts'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
 import { sortChain } from '../utils/utils.ts';
 import { useAppContext } from './AppContext.tsx';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, use } from 'react';
 
 
 
@@ -30,7 +31,6 @@ import { AnimatePresence, motion } from 'motion/react';
  * @param projects - The list of projects to which tasks belong.
  * @param userStatus - The current user's status information.
  * @param actions - The actions object containing methods to manipulate tasks and projects.
- * @param draggedTask - The currently dragged task information.
  */
 function Todolist() {
 
@@ -90,7 +90,31 @@ function Todolist() {
     });
   }, []);
 
-  const statusesSorted = sortChain(states.statuses);
+  // handle clicking on out of the focused item
+  useEffect(() => {
+    if (states.focusedItem) {
+      const handleClickOutside = (e: MouseEvent) => {
+        const event = e;
+        if (event.target instanceof HTMLElement && !event.target.closest(`#${states.focusedItem}`)) {
+          setStates.setFocusedItem(null); // Clear the focused item when clicking outside
+        }
+      };
+      document.addEventListener('click', handleClickOutside);
+
+      return () => {
+        document.removeEventListener('click', handleClickOutside);
+      };
+    }
+  }, [states.focusedItem]);
+
+  const statusesInProject = Object.fromEntries(
+    Object.entries(states.statuses).filter(([, status]) => (status as StatusType).project === states.userProfile.lastProjectId)
+  ) as StatusData;
+  const statusesSorted = sortChain(statusesInProject);
+  console.log("states.userProfile.lastProjectId", states.userProfile.lastProjectId);
+  console.log("states.statuses", states.statuses);
+  console.log("statusesInProject", statusesInProject);
+  console.log("statusesSorted", statusesSorted);
 
   return (
     <AppContext.Provider value={appContextValue}>
@@ -101,33 +125,50 @@ function Todolist() {
           {/* Contains logos, project, user information */}
           <Menubar />
           <motion.div className='todolistColumns'>
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence mode="sync" initial={false} >
+
+              <div style={{
+                width: "10px",
+                height: "100%",
+                backgroundColor: "transparent",
+                flexShrink: "0",
+              }}></div>
+
               {states.showDeleted && (
-                <TodoColumn key="deleted" title="Deleted"
+                <TodoColumn key={`${states.userProfile.lastProjectId}-deleted`} title="Deleted"
                   bgColor="#ffcce6"
-                  status="deleted"
+                  status={`${states.userProfile.lastProjectId}-deleted`}
                 />
               )}
               {states.showCompleted && (
-                <TodoColumn key="completed" title="Completed"
+                <TodoColumn key={`${states.userProfile.lastProjectId}-completed`} title="Completed"
                   bgColor="#e6f2ff"
-                  status="completed"
+                  status={`${states.userProfile.lastProjectId}-completed`}
                 />
               )}
               {statusesSorted.map(([key, status]) => (
-                <TodoColumn key={key} title={status.title}
+                <TodoColumn key={status.title} title={status.title}
                   bgColor={status.color}
                   status={status.id}
                 />
               ))}
+
+              <div className="aiChatPanelContainerPlaceholder"
+                style={{
+                  position: "relative",
+                  width: "30rem",
+                  height: "100%",
+                  backgroundColor: "transparent",
+                  flexShrink: "0",
+                }}
+              ></div>
             </AnimatePresence>
           </motion.div>
 
           {/* The right panel for AI chat */}
           {/* This panel is used to interact with the AI chat feature, which can help users with task management and organization. */}
           {/* //TODO: implement the AI chat feature in future */}
-          {/* <AIChatPanel onClose={() => {  }} /> */}
-
+          <AIChatPanel />
         </div>
       </DragDropContext>
     </AppContext.Provider >

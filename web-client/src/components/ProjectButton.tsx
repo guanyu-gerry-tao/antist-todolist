@@ -3,7 +3,7 @@ import { useRef, useState, useEffect, act } from 'react'
 import '../App.css'
 import './ProjectButton.css'
 
-import type { ProjectType, Actions, States, ProjectId } from '../utils/type'
+import type { ProjectType, ProjectId } from '../utils/type'
 import { Draggable } from '@hello-pangea/dnd'
 import { useAppContext } from './AppContext'
 import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
@@ -36,7 +36,6 @@ function getStyle(style: any, snapshot: any) {
  * @param currentProjectID - The ID of the currently selected/showing project.
  * @param setCurrentProjectID - Function to set the currently selected project ID.
  * @param actions - The actions object containing methods to manipulate projects. Defined in App.tsx.
- * @param editMode - Boolean indicating if the editMode is active. Edit mode allows the user to edit project titles.
  */
 function ProjectButton({
   project,
@@ -48,6 +47,9 @@ function ProjectButton({
     currentProjectID: ProjectId | null,
   }) {
 
+  const [isEditing, setIsEditing] = useState(false); // State to track if the project title is being edited
+  const [mouseOver, setMouseOver] = useState(false); // State to track if the mouse is over the project button
+
   const navigate = useNavigate();
 
   // Use the AppContext to access the global state and actions
@@ -57,6 +59,9 @@ function ProjectButton({
   const handleClick = () => {
     const payload = createBulkPayload();
     const backup = createBackup(states, payload);
+
+    setStates.setShowCompleted(false); // Hide completed tasks when switching projects
+    setStates.setShowDeleted(false); // Hide deleted tasks when switching projects
 
     try {
       actions.focusProject(project[0], payload); // Focus on the clicked project
@@ -74,10 +79,43 @@ function ProjectButton({
    * Handle change event for the project title input field.
    * @param e - The change event for the input field.
   */
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePressEnterAndEscape = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const event = e; // Store the current target for later use
-    const newTitle = event.target.value;
-    //TODO: Implement the logic to update the project title when the input field changes.
+    const oldTitle = project[1].title; // Get the old title of the project
+    if (event.key === 'Enter') {
+      const newTitle = event.currentTarget.value;
+      if (newTitle.trim() === '') {
+        event.currentTarget.value = oldTitle; // Reset the input field to the old title
+        event.currentTarget.blur(); // Remove focus from the input field
+        setIsEditing(false); // Stop editing mode
+        return; // Prevent empty project titles
+      } else if (newTitle === oldTitle) {
+        event.currentTarget.blur(); // Remove focus from the input field if the title hasn't changed
+        setIsEditing(false); // Stop editing mode
+        return; // Prevent unnecessary updates
+
+      } else {
+        event.currentTarget.blur(); // Remove focus from the input field
+        setIsEditing(false); // Stop editing mode
+        const payload = createBulkPayload();
+        const backup = createBackup(states, payload);
+
+        try {
+          actions.updateProject(project[0], { title: newTitle }, payload); // Call the update function from actions with the project ID and new title
+          optimisticUIUpdate(setStates, payload); // Optimistically update the UI with the new title
+          postPayloadToServer('/api/bulk', navigate, payload); // Send the update request to the server
+        } catch (error) {
+          console.error('Error updating project title:', error);
+          restoreBackup(setStates, backup); // Restore the previous state in case of an error
+        }
+      }
+      // TODO: Implement the logic to update the project title when the input field changes.
+    }
+    if (e.key === 'Escape') {
+      event.currentTarget.blur(); // Remove focus from the input field
+      setIsEditing(false); // Stop editing mode
+      event.currentTarget.value = oldTitle; // Reset the input field to the old title
+    }
   }
 
   /**
@@ -100,17 +138,6 @@ function ProjectButton({
 
       try {
         actions.deleteProject(project[0], backup); // Call the delete function from actions with the project ID
-        Object.entries(states.tasks).filter(task => task[1].projectId === project[0]).forEach(task => {
-          actions.hardDeleteTask(task[0], backup); // Delete all tasks in the project
-        });
-        if (states.userProfile.lastProjectId === project[0]) {
-          if (projects.length > 0) {
-            actions.focusProject(project[1].prev || project[1].next, backup);
-            console.log(states.userProfile.lastProjectId);
-          } else { // if no projects left, set the current project ID to an empty string
-            actions.focusProject(null, backup); // Focus on no project
-          }
-        }
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the deleted project
         postPayloadToServer('/api/bulk', navigate, backup); // Send the delete request to the server
         console.log('tasks after deletion', JSON.stringify(states.projects));
@@ -133,35 +160,56 @@ function ProjectButton({
   // ...provided.draggableProps: these are the props required by the Draggable component to make the task draggable.
   // ...provided.dragHandleProps: these are the props required by the Draggable component to make the <div> draggable.
   // style: this is used to apply the draggable styles to the task element. See getStyle function above.
+
+  const reftitle = useRef<HTMLInputElement>(null);
+
   return (
     <>
       <motion.div
-      layout
-      layoutId={project[0]}>
-        <div
-          className={`projectButton`}
-          id={project[0]}
-          style={{ border: currentProjectID === project[0] ? '1px solid #808080' : '1px solid transparent' }}
-          onClick={handleClick}
+        id={project[0]}
+        layout
+        layoutId={project[0]}
+        animate={{ zIndex: 2000 }}
+        onMouseEnter={() => { setMouseOver(true); }}
+        onMouseLeave={() => { setMouseOver(false); }}
+        onDoubleClick={(e) => {
+          e.stopPropagation(); // Prevent the click event from propagating to the parent div
+          setIsEditing(true); // Set the editing mode to true when double-clicked
+          reftitle.current?.focus(); // Focus the input field when double-clicked
+          reftitle.current?.select(); // Select the input text when double-clicked
+        }}
+        className={`projectButton`}
+        style={{
+          border: currentProjectID === project[0] ? '1px solid #b6b6b6ff' : '1px solid transparent',
+          boxShadow: isEditing ? 'rgba(49, 49, 49, 0.5) 0px 0px 0px 2px' : 'none',
+        }}
+        onClick={handleClick}
+      >
+        <div className="projectButtonContent"
         >
-          <div className="projectButtonContent"
-          >
-            <input
-              type='text'
-              className='projectButtonInput'
-              defaultValue={project[1].title}
-              onChange={handleChange} />
-
-          </div>
-          <div className="deleteProjectButton"
-            style={{
-              opacity: states.editMode ? 1 : 0,
-              visibility: states.editMode ? 'visible' : 'hidden',
-              pointerEvents: states.editMode ? 'auto' : 'none',
+          <input
+            type='text'
+            className='projectButtonInput'
+            ref={reftitle}
+            defaultValue={project[1].title}
+            onKeyDown={handlePressEnterAndEscape}
+            onBlur={(e) => {
+              setIsEditing(false)
+              e.currentTarget.setSelectionRange(0, 0); // Deselect the input field when it loses focus
             }}
-            onClick={handleDeleteButton}
-          ></div>
+            readOnly={!isEditing} // Make the input field read-only when not in editing mode
+          />
+
+
         </div>
+        <div className="deleteProjectButton"
+          style={{
+            opacity: mouseOver ? 1 : 0,
+            visibility: mouseOver ? 'visible' : 'hidden',
+            pointerEvents: mouseOver ? 'auto' : 'none',
+          }}
+          onClick={handleDeleteButton}
+        ></div>
       </motion.div>
     </>
   )
