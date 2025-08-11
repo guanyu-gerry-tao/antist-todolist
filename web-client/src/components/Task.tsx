@@ -49,6 +49,26 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
   const [isExiting, setIsExiting] = useState<boolean>(false); // State to manage exit animation
   const [exitingToStatus, setExitingToStatus] = useState<string | null>(null); // Track which status we're exiting to
 
+  function shouldDisplay() {
+    if (task[1].status.endsWith('-deleted') && !states.showDeleted) {
+      return false; // If the task is deleted and showDeleted is false, do not display
+    } else if (task[1].status.endsWith('-completed') && !states.showCompleted) {
+      return false; // If the task is completed and showCompleted is false, do not display
+    } else if (task[1].status.endsWith('-deleted') && states.showDeleted) {
+      return true; // If the task is deleted and showDeleted is true, display it
+    } else if (task[1].status.endsWith('-completed') && states.showCompleted) {
+      return true; // If the task is completed and showCompleted is true, display it
+    } else {
+      // For all other cases, check if the task belongs to the current project
+      const taskStatus = states.statuses[task[1].status];
+      if (taskStatus.project === states.userProfile.lastProjectId) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
   /**
    * Handle click event on the task title, saves the current value of the input field.
    * This is used to restore the value when the Escape key is pressed.
@@ -422,7 +442,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
                 animate(`#${task[0]}`, { scale: [1, 0.98, 1] }, { duration: 0.2, ease: "easeInOut" })
               }}
               style={{
-                display: states.statuses[task[1].status].project !== states.userProfile.lastProjectId ? 'none' : 'block',
+                display: shouldDisplay() ? 'block' : 'none',
               }}
             >
               <div
