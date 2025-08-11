@@ -1,7 +1,8 @@
 import { useLayoutEffect } from "react";
-import type { UserProfileData, TaskId, TaskType, TaskData, ProjectId, ProjectType, ProjectData, StatusId, StatusType, StatusData, Actions, States, SetStates, BulkPayload, UserId } from "./type.ts";
+import type { UserProfileData, TaskId, TaskType, TaskData, ProjectId, ProjectType, ProjectData, StatusId, StatusType, StatusData, BulkPayload, UserId } from "./type.ts";
+import type { States, SetStates } from "./states.ts";
 import { sortChain, createBulkPayload, optimisticUIUpdate, postPayloadToServer, createBackup, restoreBackup } from './utils.ts';
-import type { DragDropContextProps, DropResult } from '@hello-pangea/dnd';
+import type { DragDropContextProps, DragStart, DragUpdate, DropResult, ResponderProvided } from '@hello-pangea/dnd';
 import { animate } from 'motion';
 import { nav } from "framer-motion/client";
 import { Navigate } from "react-router-dom";
@@ -17,7 +18,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    */
   const addTask = (newTask: Omit<TaskType, 'id'>, bulkPayload: BulkPayload, addWithAnimation: boolean = false): TaskId => {
     const id = crypto.randomUUID(); // Generate a unique ID for the new task
-    const targetStatusExistingTasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, t]) => t.status === newTask.status && t.projectId === newTask.projectId));
+    const targetStatusExistingTasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, t]) => t.status === newTask.status));
     const sortedTargetStatusTasks = sortChain(targetStatusExistingTasks);
     // Generate a unique ID for the new task:
     const newTaskWithId: TaskType = ({
@@ -77,7 +78,10 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     };
 
     // make the project top:
-    moveProject(newTaskWithId.projectId, 0, bulkPayload); // Move the project to the top of the list
+    const statusData = states.statuses[newTaskWithId.status];
+    if (statusData && statusData.project) {
+      moveProject(statusData.project, 0, bulkPayload); // Move the project to the top of the list
+    }
 
     console.log(`addTask: payload: ${JSON.stringify(bulkPayload)}`);
     if (addWithAnimation) {
@@ -110,8 +114,10 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     })
 
     // make the project top:
-    const project = states.tasks[updatePayload.id].projectId;
-    moveProject(project, 0, bulkPayload); // Move the project to the top of the list
+    const statusData = states.statuses[states.tasks[updatePayload.id].status];
+    if (statusData && statusData.project) {
+      moveProject(statusData.project, 0, bulkPayload); // Move the project to the top of the list
+    }
   };
 
 
@@ -164,8 +170,10 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     }
 
     // make the project top:
-    const project = states.tasks[id].projectId;
-    moveProject(project, 0, bulkPayload); // Move the project to the top of the list
+    const statusData = states.statuses[task.status];
+    if (statusData && statusData.project) {
+      moveProject(statusData.project, 0, bulkPayload); // Move the project to the top of the list
+    }
 
   };
 
@@ -183,7 +191,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
   const moveTask = (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload, moveWithAnimation: boolean = false) => {
 
     // check if the status is exist
-    if (Object.keys(states.statuses).includes(targetStatusId) === false && targetStatusId !== "completed" && targetStatusId !== "deleted") {
+    if (Object.keys(states.statuses).includes(targetStatusId) === false && !targetStatusId.endsWith("-completed") && !targetStatusId.endsWith("-deleted")) {
       throw new Error(`Status with id ${targetStatusId} does not exist.`);
     }
     // check if the task is exist
@@ -192,7 +200,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     }
 
     // get the target status chain
-    const targetStatusChain = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === targetStatusId && task.projectId === states.userProfile.lastProjectId));
+    const targetStatusChain = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === targetStatusId));
     const sortedTargetChainWithoutTask = sortChain(targetStatusChain).filter(task => task[0] !== id); // Exclude the task being moved
 
     // convert index to a number if it's a string. If index is out of bounds, set it to the start or end of the tasks.
@@ -309,8 +317,10 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     }
 
     // make the project top:
-    const project = states.tasks[id].projectId;
-    moveProject(project, 0, bulkPayload); // Move the project to the top of the list
+    const statusData = states.statuses[states.tasks[id].status];
+    if (statusData && statusData.project) {
+      moveProject(statusData.project, 0, bulkPayload); // Move the project to the top of the list
+    }
 
     // requestAnimationFrame(() => {
     //   document.getElementById(id)?.classList.remove('hide'); // Ensure the task is visible after moving
@@ -547,6 +557,8 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     const deletedProjectPrev = deletedProject.prev;
     const deletedProjectNext = deletedProject.next;
 
+    console.log(`deleteProject: Deleting project with id ${projectId}, prev: ${deletedProjectPrev}, next: ${deletedProjectNext}`);
+
     // Add the deleted project to the bulk payload
     bulkPayload.ops.push({
       type: 'project',
@@ -577,7 +589,10 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     }
 
     // Also delete all tasks in the project
-    const tasksInProject = Object.entries(states.tasks).filter(([_, task]) => task.projectId === projectId && task.userId === states.userProfile.id);
+    const tasksInProject = Object.entries(states.tasks).filter(([_, task]) => {
+      const taskStatus = states.statuses[task.status];
+      return taskStatus && taskStatus.project === projectId && task.userId === states.userProfile.id;
+    });
     for (const [taskId, _] of tasksInProject) {
       bulkPayload.ops.push({
         type: 'task',
@@ -661,9 +676,6 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
   const onDragEnd: DragDropContextProps['onDragEnd'] = async (result: DropResult, navigate: any) => {
     // handle "task" type drag and drop
     if (result.type === 'task') {
-      setTimeout(() => {
-        setStates.setDraggedTask([]); // Reset the dragged task ID after a short delay to ensure the UI updates correctly
-      }, 100);
       console.log('onDragEnd', result); // Log the drag result for debugging
       if (result.destination) { // If true, the task was dropped in a valid droppable area. If false, it means the task was dropped outside of a droppable area.
         const taskId = result.draggableId; // Get the ID of the dragged task
@@ -793,7 +805,6 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
         setTimeout(() => {
           setStates.setJustDragged(false); // Reset the just dragged task after the drag ends
         }, 300);
-        setStates.setDraggedTask([]); // Reset the dragged task after the drag ends
         console.log('onDragEnd completed');
       }
     }
@@ -858,56 +869,13 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * It sets the dragged task ID if the draggable type is 'task'.
    * Currently, it does not handle project dragging. Not implemented yet.
    */
-  const onDragStart: DragDropContextProps['onDragStart'] = (start) => {
-
-    const tasksInStatus = Object.fromEntries(Object.entries(states.tasks)
-      .filter(([_, task]) => task.status === start.source?.droppableId &&
-        task.projectId === states.userProfile.lastProjectId)); // Get all tasks in the result status
-    setStates.setDraggedTask([start.draggableId]); // Set the dragged task ID to the state
+  const onDragStart: DragDropContextProps['onDragStart'] = (_start) => {
     setStates.setJustDragged(true);
-    //   if (start.type === 'task') {
-    //     setStates.setDraggedTask([start.draggableId]);
-    //   }
-    //   if (start.type === 'project') {
-
-    //   }
-
-    //   // Store the previous droppable ID to handle drag updates.
-    //   // Not in use. Stored here for future use.
-    //   const prevDroppableId = useRef<string | null>(null);
-    //   // Function to handle updates during a drag and drop event.
-    //   // Not in use. Stored here for future use.
   }
-  const onDragUpdate: DragDropContextProps['onDragUpdate'] = (update) => {
-    const tasksInStatus = Object.fromEntries(Object.entries(states.tasks)
-      .filter(([_, task]) => task.status === update.destination?.droppableId &&
-        task.projectId === states.userProfile.lastProjectId)); // Get all tasks in the result status
+  const onDragUpdate: DragDropContextProps['onDragUpdate'] = (_update) => {
     setStates.setJustDragged(true); // Set the just dragged task ID and all tasks in the status to the state
-    //   const current = update.destination?.droppableId || null;
-    //   if (current !== prevDroppableId.current) {
-    //     if (prevDroppableId.current === '-1') { // exit delete-zone
-    //       document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
-    //         // Remove the class indicating the draggable is over the delete area
-    //       });
-    //     }
-    //     if (current === '-1') { // enter delete-zone
-    //       document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
-    //         // Add a class to indicate the draggable is over the delete area
-    //       });
-    //     }
-    //     if (prevDroppableId.current !== null && current === null) { // exit all Droppable
-    //       // places to handle when the draggable is not over any droppable area
-    //     }
-    //     prevDroppableId.current = current;
-    //   }
   }
-  // Stored here for future use end.
 
-
-  // Define the actions that can be performed on tasks and projects.
-  // These actions will be passed down to the Todolist component.
-  // They include functions to add, update, delete tasks and projects, and refresh tasks.
-  // It is just convenient to put all the actions in one place.
   return {
     addTask,
     updateTask,
@@ -922,4 +890,20 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     onDragStart,
     onDragUpdate,
   };
+};
+
+
+export type Actions = {
+  addTask: (newTask: Omit<TaskType, 'id'>, bulkPayload: BulkPayload, addWithAnimation?: boolean) => TaskId; // Returns the ID of the newly added task
+  updateTask: (updatePayloads: { id: TaskId; updatedFields: Partial<TaskType> }, bulkPayload: BulkPayload) => void; // Accepts an array of update payloads, each containing the task ID and the fields to be updated
+  hardDeleteTask: (id: TaskId, bulkPayload: BulkPayload) => void;
+  moveTask: (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload, moveWithAnimation?: boolean) => void;
+  focusProject: (projectId: ProjectId | null, bulkPayload: BulkPayload) => void; // Focuses on a specific project, updating the user profile with the last interacted project ID
+  addProject: (newProject: Omit<ProjectType, 'id'>, bulkPayload: BulkPayload, addWithAnimation?: boolean) => ProjectId; // Returns the ID of the newly added project
+  updateProject: (id: ProjectId, updatedFields: Partial<ProjectType>, bulkPayload: BulkPayload) => void;
+  moveProject: (id: ProjectId, index: number, bulkPayload: BulkPayload) => void;
+  deleteProject: (projectId: ProjectId, bulkPayload: BulkPayload) => void;
+  onDragEnd: (result: DropResult, provided: ResponderProvided) => void;
+  onDragStart: (start: DragStart, provided: ResponderProvided) => void;
+  onDragUpdate: (update: DragUpdate, provided: ResponderProvided) => void;
 };

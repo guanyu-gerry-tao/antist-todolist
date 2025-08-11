@@ -7,7 +7,6 @@ const taskSchema = new mongoose.Schema({
   description: { type: String },
   status: { type: String, ref: 'Status', required: true },
   previousStatus: { type: String, ref: 'Status' },
-  projectId: { type: String, ref: 'Project', required: true },
   prev: { type: String, ref: 'Task' },
   next: { type: String, ref: 'Task' },
   userId: { type: String, ref: 'UserAuth', required: true }

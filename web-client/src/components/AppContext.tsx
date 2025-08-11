@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
-import type { States, SetStates, Actions } from '../utils/type';
+import type { Actions } from '../utils/actions.ts';
+import type { States, SetStates } from '../utils/states.ts';
 
 export const AppContext = createContext<{
   states: States;

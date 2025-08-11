@@ -8,6 +8,7 @@ import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServe
 
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
+import { animate } from 'motion';
 
 /**
  * This function is used to get the style of the task when it is being dragged
@@ -192,12 +193,12 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
   const handleDeleteButton = async (e: React.MouseEvent<HTMLDivElement>) => {
     const event = e; // Store the current target for later use
     event.stopPropagation(); // Prevent the click event from propagating to the parent div
-    if (task[1].status === 'deleted') { // If the task is already deleted, we ask for double confirmation before permanently deleting it
+    if (task[1].status.endsWith('-deleted')) { // If the task is already deleted, we ask for double confirmation before permanently deleting it
       if (window.confirm(`By double deleting task: ${task[1].title}, you will permanently delete it. Are you sure?`)) {
         // Start exit animation
         setIsExiting(true);
         setExitingToStatus('hardDeleted'); // Special status for hard deletion - always fly up
-        
+
         // create a bulk payload and backup for the delete operation
         const bulkPayload = createBulkPayload();
         const backup = createBackup(states, bulkPayload);
@@ -219,13 +220,13 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
       // Start exit animation
       setIsExiting(true);
       setExitingToStatus('deleted'); // Set the target status
-      
+
       // create a bulk payload and backup for the move operation
       const bulkPayload = createBulkPayload();
       const backup = createBackup(states, bulkPayload);
 
       try {
-        actions.moveTask(task[0], 'deleted', 'end', backup, false); // Move the task to the end of the deleted list
+        actions.moveTask(task[0], `${states.userProfile.lastProjectId}-deleted`, 'end', backup, false); // Move the task to the end of the deleted list
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task status
         postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
       } catch (error) {
@@ -241,20 +242,20 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
   const handleCompleteButton = async (e: React.MouseEvent<HTMLDivElement>) => {
     const event = e; // Store the current target for later use
     event.stopPropagation(); // Prevent the click event from propagating to the parent div
-    if (task[1].status === 'completed' || task[1].status === 'deleted') {
+    if (task[1].status === `-${states.userProfile.lastProjectId}-completed` || task[1].status === `-${states.userProfile.lastProjectId}-deleted`) {
       // for deleted/completed tasks, there shouldn't be a complete button, so we don't need to handle this case.
       console.warn(`Task with id ${task[0]} is deleted/completed, cannot complete it.`);
     } else { // if the task is not completed, we move it to the completed status
       // Start exit animation
       setIsExiting(true);
       setExitingToStatus('completed'); // Set the target status
-      
+
       // create a bulk payload and backup for the move operation
       const bulkPayload = createBulkPayload();
       const backup = createBackup(states, bulkPayload);
 
       try {
-        actions.moveTask(task[0], 'completed', 'end', backup, false); // Move the task to the end of the completed list
+        actions.moveTask(task[0], `${states.userProfile.lastProjectId}-completed`, 'end', backup, false); // Move the task to the end of the completed list
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task status
         postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
       } catch (error) {
@@ -328,13 +329,11 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
   // The first = '0px' set the height to minimum height, then set it to scrollHeight to ensure it fits the content
   useEffect(() => {
     if (textAreaRefDesc.current) {
-      textAreaRefDesc.current.style.height = textAreaRefDesc.current.scrollHeight + 'px'; // Reset height to minimum height, ensure it was smaller and then get larger.
-      // textAreaRefDesc.current.style.height = textAreaRefDesc.current.scrollHeight + 'px'; // Set height to scrollHeight.
+      textAreaRefDesc.current.style.height = textAreaRefDesc.current.scrollHeight + 'px'; // Set height to scrollHeight.
       setTextAreaDescHeight(textAreaRefDesc.current.scrollHeight);
     }
     if (textAreaRefTitle.current) {
       textAreaRefTitle.current.style.height = textAreaRefTitle.current.scrollHeight + 'px'; // Reset height to minimum height, ensure it was smaller and then get larger.
-      // textAreaRefTitle.current.style.height = textAreaRefTitle.current.scrollHeight + 'px'; // Set height to scrollHeight.
       setTextAreaTitleHeight(textAreaRefTitle.current.scrollHeight);
     }
   }, [task[1].title, task[1].description, states.showCompleted, states.showDeleted]); // This effect runs whenever the task title or description changes
@@ -354,7 +353,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
 
   const today = new Date();
   const dueDate = new Date();
-  dueDate.setDate(today.getDate() - 2);
+  dueDate.setDate(today.getDate() - 1);
 
   const [onMouseEnter, setOnMouseEnter] = useState<boolean>(false); // State to manage mouse enter event
 
@@ -371,55 +370,69 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
       {
         (provided, snapshot) => {
           const isDragging = snapshot.isDragging || snapshot.isDropAnimating || states.justDragged;
-          
+          const isFocusing = states.focusedItem === task[0]; // Check if the task is focused
+
           // Determine exit animation based on task status and visibility settings
           const getExitAnimation = () => {
             if (!isExiting) return {};
-            
+
             // Use exitingToStatus to determine target, fallback to current status
             const targetStatus = exitingToStatus || task[1].status;
-            
+
             // For tasks going to deleted status
             if (targetStatus === 'deleted') {
-              return states.showDeleted 
+              return states.showDeleted
                 ? { opacity: 0, scale: 0.8, x: 0, y: 0 } // Fly to deleted bar (visible)
                 : { opacity: 0, scale: 0.5, y: -50 }; // Fly up and disappear (hidden)
             }
-            
+
             // For tasks going to completed status
             if (targetStatus === 'completed') {
               return states.showCompleted
                 ? { opacity: 0, scale: 0.8, x: 0, y: 0 } // Fly to completed bar (visible)
                 : { opacity: 0, scale: 0.5, y: -50 }; // Fly up and disappear (hidden)
             }
-            
+
             // Default upward animation
             return { opacity: 0, scale: 0.5, y: -50 };
           };
 
           return (
-            <motion.div className="cardContainer"
+            <motion.div
+              className="cardContainer"
+              id={task[0]}
               layout={!isDragging && !isExiting}
               layoutId={isDragging ? undefined : task[0]}
               initial={isDragging ? { opacity: 0.1 } : isExiting ? { opacity: 1, scale: 1 } : { opacity: 0.1 }}
               animate={isDragging ? { opacity: 1 } : isExiting ? getExitAnimation() : { opacity: 1 }}
               exit={getExitAnimation()}
               transition={
-                isDragging ? { duration: 0 } : 
-                isExiting ? { duration: 0.2, ease: "easeOut" } : 
-                { type: 'spring', stiffness: 300, damping: 25 }
+                isDragging ? { duration: 0 } :
+                  isExiting ? { duration: 0.2, ease: "easeOut" } :
+                    { type: 'tween', stiffness: 300, damping: 25 }
               }
               onMouseEnter={() => setOnMouseEnter(true)}
               onMouseLeave={() => setOnMouseEnter(false)}
+              onDoubleClick={() => {
+                setStates.setFocusedItem(task[0]);
+                if (textAreaRefTitle.current) {
+                  textAreaRefTitle.current.focus(); // Focus on the title textarea
+                  textAreaRefTitle.current.select(); // Select the title text
+                }
+                animate(`#${task[0]}`, { scale: [1, 0.98, 1] }, { duration: 0.2, ease: "easeInOut" })
+              }}
+              style={{
+                display: states.statuses[task[1].status].project !== states.userProfile.lastProjectId ? 'none' : 'block',
+              }}
             >
               <div
                 className={`card`}
-                id={task[0]}
                 ref={provided.innerRef}
                 {...provided.draggableProps}
                 {...provided.dragHandleProps}
                 style={{
                   ...getStyle(provided.draggableProps.style, snapshot),
+                  border: isFocusing ? '2px solid black' : '2px solid transparent',
                 }}
               >
 
@@ -432,6 +445,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
                     placeholder='Add a title...'
                     defaultValue={task[1].title}
                     ref={textAreaRefTitle}
+                    rows={1}
                     onChange={(e) => {
                       const event = e; // Store the current target for later use
                       event.currentTarget.style.height = '0px';
@@ -440,21 +454,31 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
                     }}
                     onClick={handleClickTitle}
                     onKeyDown={handleTitleKeyboard}
-                    onBlur={handleTitleLostFocus} />
+                    onBlur={handleTitleLostFocus}
+                    readOnly={!isFocusing}
+                    style={{
+                      pointerEvents: isFocusing ? 'auto' : 'none',
+                    }}
+                  />
 
                   <textarea
                     className='taskDesc'
                     defaultValue={task[1].description}
                     placeholder='Add a description...'
                     ref={textAreaRefDesc}
+                    rows={1}
                     onChange={(e) => {
                       const event = e; // Store the current target for later use
                       event.currentTarget.style.height = '0px';
                       event.currentTarget.style.height = event.currentTarget.scrollHeight + 'px';
                       setTextAreaDescHeight(event.currentTarget.scrollHeight);
                     }}
+                    style={{
+                      pointerEvents: isFocusing ? 'auto' : 'none',
+                    }}
                     onKeyDown={handleDescKeyboard}
                     onBlur={handleDescLostFocus}
+                    readOnly={!isFocusing}
                   />
 
                   <input type='date'
@@ -464,8 +488,10 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
                     style={{
                       color: task[1].dueDate && task[1].dueDate < dueDate ? 'red' : '',
                       fontWeight: task[1].dueDate && task[1].dueDate < dueDate ? 'normal' : '',
-                      opacity: task[1].dueDate && task[1].dueDate < dueDate ? '1' : ''
+                      opacity: task[1].dueDate && task[1].dueDate < dueDate ? '1' : '',
+                      pointerEvents: isFocusing ? 'auto' : 'none',
                     }}
+                    readOnly={!isFocusing}
                   />
 
                   {/* TODO: add subtasks function: click to drop down subtasks, subtasks can be added, deleted, updated, dragged */}
@@ -481,12 +507,12 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
                 >
                 </div>
 
-                {task[1].status !== 'deleted' && task[1].status !== 'completed' && (
+                {!task[1].status.endsWith('deleted') && !task[1].status.endsWith('completed') && (
                   <div className="completeTaskButton"
                     style={{
                       opacity: onMouseEnter && !isDragging ? 1 : 0,
                       visibility: onMouseEnter && !isDragging ? 'visible' : 'hidden',
-                      pointerEvents: onMouseEnter && !isDragging ? 'auto' : 'none'
+                      pointerEvents: onMouseEnter && !isDragging ? 'auto' : 'none',
                     }}
                     onClick={handleCompleteButton}
                   >
@@ -494,7 +520,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
                 }
 
 
-                {(task[1].status === "deleted" || task[1].status === "completed") && (
+                {(task[1].status.endsWith("-deleted") || task[1].status.endsWith("-completed")) && (
                   <div className="restoreTaskButton"
                     style={{
                       opacity: onMouseEnter && !isDragging ? 1 : 0,

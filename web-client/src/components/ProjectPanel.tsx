@@ -4,7 +4,7 @@ import './ProjectPanel.css';
 import { useImmer } from 'use-immer';
 import { Droppable } from '@hello-pangea/dnd';
 import ProjectButton from './ProjectButton.tsx';
-import type { Actions, ProjectType, States } from '../utils/type.ts';
+import type { ProjectType } from '../utils/type.ts';
 import AddNewProject from './AddNewProject.tsx';
 import { sortChain } from '../utils/utils.ts';
 import { useAppContext } from './AppContext.tsx';

@@ -6,7 +6,7 @@ import ProjectButton from './ProjectButton.tsx'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
 import ProjectPanel from './ProjectPanel.tsx'
-import type { Actions, States } from '../utils/type.ts'
+
 import { useAppContext } from './AppContext.tsx'
 
 
@@ -15,7 +15,6 @@ import { useAppContext } from './AppContext.tsx'
  * The Menubar component is the left sidebar of the todolist application.
  * It contains the project list, search bar, and other menu items.
  * @param actions - The actions object containing functions to manipulate projects and tasks.
- * @param draggedTask - The currently dragged task, if any. Not used in this version yet.
  * @param projects - The list of projects available in the application.
  * @param currentProjectID - The ID of the currently selected project.
  * @param setCurrentProjectID - Function to set the currently selected project ID.
@@ -25,14 +24,6 @@ function Menubar() {
 
   // Use the AppContext to access the global state and actions
   const { states, setStates, actions } = useAppContext();
-
-  /**
-   * Handle click event for the edit mode toggle.
-   */
-  const handleEditModeClick = () => {
-    console.log("edit mode clicked: " + states.editMode);
-    setStates.setEditMode(!states.editMode);
-  };
 
   /**
    * Handle click event for the delete tasks button.
@@ -98,7 +89,6 @@ function Menubar() {
         {/* The project list */}
         <div className='menubarProjectsHeader'>
           <p className='menubarProjectsTitle'>Projects</p>
-          <div className="delSwitch" onClick={handleEditModeClick}>Edit</div>
         </div>
 
         {/* The actual project buttons components, a droppable */}
@@ -124,7 +114,6 @@ function Menubar() {
           <div className='menubarBottomItems'>
             <p>Help & About</p>
           </div>
-          <span>{states.justDragged ? "Dragging..." : ""}</span>
         </div>
       </div>
     </>
