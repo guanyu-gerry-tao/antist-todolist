@@ -36,6 +36,8 @@ function TodoColumn({
   console.log("tasks in TodoColumn", tasks);
   const tasksSorted = sortChain(tasks as TaskData) as [TaskId, TaskType][];
 
+  console.log("status", status);
+
   // This counts the number of tasks in the current column, which is used to determine the order of the new task.
 
   return (
@@ -48,7 +50,7 @@ function TodoColumn({
           transformOrigin: "left",
         }}
         layout
-        layoutId={`${title}-Container`}
+        layoutId={`${status}-Container`}
         transition={{ type: 'tween', stiffness: 300, damping: 30, duration: 0.2 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

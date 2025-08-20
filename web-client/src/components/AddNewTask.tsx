@@ -39,7 +39,6 @@ function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [Ta
           title: newTaskTitle,
           status: status,
           previousStatus: status, // for new task, the previous status is the same as the current status
-          projectId: states.userProfile.lastProjectId as ProjectId, // Assuming a default project, you can modify this as needed
           prev: null, // 
           next: null, // if prev and next are null, by default, the task will be added to the end of the list
           userId: states.userProfile.id as string,
