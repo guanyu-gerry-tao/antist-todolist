@@ -43,7 +43,6 @@ function Todolist() {
 
   useEffect(() => {
     loadAllData(navigate).then((d) => {
-      console.log("tasks loaded raw", d);
       setStates.setTasks(draft => {
         Object.assign(draft, d.taskData);
         if (Object.keys(d.taskData).length === 0) {
@@ -125,44 +124,42 @@ function Todolist() {
           {/* Contains logos, project, user information */}
           <Menubar />
           <motion.div className='todolistColumns'>
-            <AnimatePresence mode="sync" initial={false} >
 
-              <div style={{
-                width: "10px",
+            <div style={{
+              width: "10px",
+              height: "100%",
+              backgroundColor: "transparent",
+              flexShrink: "0",
+            }}></div>
+
+            {states.showDeleted && (
+              <TodoColumn key={`${states.userProfile.lastProjectId}-deleted`} title="Deleted"
+                bgColor="#ffcce6"
+                status={`${states.userProfile.lastProjectId}-deleted`}
+              />
+            )}
+            {states.showCompleted && (
+              <TodoColumn key={`${states.userProfile.lastProjectId}-completed`} title="Completed"
+                bgColor="#e6f2ff"
+                status={`${states.userProfile.lastProjectId}-completed`}
+              />
+            )}
+            {statusesSorted.map(([key, status]) => (
+              <TodoColumn key={status.id} title={status.title}
+                bgColor={status.color}
+                status={status.id}
+              />
+            ))}
+
+            <div className="aiChatPanelContainerPlaceholder"
+              style={{
+                position: "relative",
+                width: "30rem",
                 height: "100%",
                 backgroundColor: "transparent",
                 flexShrink: "0",
-              }}></div>
-
-              {states.showDeleted && (
-                <TodoColumn key={`${states.userProfile.lastProjectId}-deleted`} title="Deleted"
-                  bgColor="#ffcce6"
-                  status={`${states.userProfile.lastProjectId}-deleted`}
-                />
-              )}
-              {states.showCompleted && (
-                <TodoColumn key={`${states.userProfile.lastProjectId}-completed`} title="Completed"
-                  bgColor="#e6f2ff"
-                  status={`${states.userProfile.lastProjectId}-completed`}
-                />
-              )}
-              {statusesSorted.map(([key, status]) => (
-                <TodoColumn key={status.title} title={status.title}
-                  bgColor={status.color}
-                  status={status.id}
-                />
-              ))}
-
-              <div className="aiChatPanelContainerPlaceholder"
-                style={{
-                  position: "relative",
-                  width: "30rem",
-                  height: "100%",
-                  backgroundColor: "transparent",
-                  flexShrink: "0",
-                }}
-              ></div>
-            </AnimatePresence>
+              }}
+            ></div>
           </motion.div>
 
           {/* The right panel for AI chat */}
