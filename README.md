@@ -1,6 +1,6 @@
 # Raccoon Study
 
-Reccoon Study App is an AI-driven study todolist.
+Raccoon Study App is an AI-driven study todolist.
 
 # key feature:
 ## AI assistant to manage
