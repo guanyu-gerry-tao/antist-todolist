@@ -1,4 +1,4 @@
-# Reccoon Study
+# Raccoon Study
 
 Reccoon Study App is an AI-driven study todolist.
 
