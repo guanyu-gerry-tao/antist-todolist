@@ -22,8 +22,12 @@ export async function loadAllData(navigate: any): Promise<{ taskData: TaskData, 
       avatarUrl: null,
       language: null
     };
+    
+    const apiUrl = import.meta.env.VITE_NODE_ENV === 'production' 
+  ? import.meta.env.VITE_API_BASE_URL 
+  : 'http://localhost:3001';
 
-    const res = await fetch('/api/getAll', {
+    const res = await fetch(`${apiUrl}/api/getAll`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

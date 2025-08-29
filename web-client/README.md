@@ -137,10 +137,10 @@ const createTask = async (taskData: TaskInput) => {
 
 // Chat integration
 const sendChatMessage = async (message: string, history: Message[]) => {
-  const response = await fetch('/api/ai/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, conversationHistory: history })
+   const response = await fetch('/api/ai/chat', {
+   method: 'POST',
+   headers: { 'Content-Type': 'application/json' },
+   body: JSON.stringify({ message, conversationHistory: history })
   });
   return response.json();
 };

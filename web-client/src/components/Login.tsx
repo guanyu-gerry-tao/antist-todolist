@@ -55,7 +55,11 @@ function Login() {
     }
 
     try {
-      const res = await fetch('/api/login', {
+      const apiUrl = import.meta.env.VITE_NODE_ENV === 'production' 
+      ? import.meta.env.VITE_API_BASE_URL 
+      : 'http://localhost:3001';
+      
+      const res = await fetch(`${apiUrl}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

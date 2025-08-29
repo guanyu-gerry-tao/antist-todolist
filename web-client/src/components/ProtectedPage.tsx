@@ -8,7 +8,11 @@ export default function ProtectedPage({ children }: { children: React.ReactNode 
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
-        const res = await fetch('/api/me', {
+        const apiUrl = import.meta.env.VITE_NODE_ENV === 'production' 
+        ? import.meta.env.VITE_API_BASE_URL 
+        : 'http://localhost:3001';
+        
+        const res = await fetch(`${apiUrl}/api/me`, {
           method: 'GET',
           credentials: 'include', // Include cookies for session management
         });

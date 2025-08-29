@@ -55,7 +55,11 @@ const AIChatPanel = ({ onClose }: { onClose?: () => void }) => {
         sender: msg.sender === "ai" ? "assistant" : "user"
       }));
 
-      const response = await fetch("/api/ai-chat", {
+      const apiUrl = import.meta.env.VITE_NODE_ENV === 'production' 
+      ? import.meta.env.VITE_API_BASE_URL 
+      : 'http://localhost:3001';
+
+      const response = await fetch(`${apiUrl}/api/ai-chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: 'include',
@@ -170,7 +174,11 @@ const AIChatPanel = ({ onClose }: { onClose?: () => void }) => {
       const taskId = actions.addTask(newTask, bulkPayload, true);
       
       // Send to server
-      await fetch('/api/operations', {
+      const apiUrl = import.meta.env.VITE_NODE_ENV === 'production' 
+      ? import.meta.env.VITE_API_BASE_URL 
+      : 'http://localhost:3001';
+
+      await fetch(`${apiUrl}/api/operations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
