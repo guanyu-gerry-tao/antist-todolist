@@ -78,7 +78,7 @@ function Menubar() {
         {/* Logo part 
         // TODO: make a logo */}
         <div>
-          <p className='menubarTitle'>Reccoon Study</p>
+          <p className='menubarTitle'>Raccoon Study</p>
         </div>
 
         <div className='menubarSearchBar'>

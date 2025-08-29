@@ -100,7 +100,7 @@ function Login() {
               type="email"
               id="email"
               name="email"
-              placeholder="Reccoon@study.com"
+              placeholder="Raccoon@study.com"
               defaultValue="demouser001@raccoon.com"
               required
             />
