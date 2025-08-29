@@ -1,0 +1,40 @@
+{
+  "name": "ai-service",
+  "version": "1.0.0",
+  "description": "AI microservice for task management and chat functionality",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@langchain/community": "^0.0.20",
+    "@langchain/core": "^0.3.72",
+    "@langchain/openai": "^0.0.14",
+    "axios": "^1.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "joi": "^17.11.0",
+    "langchain": "^0.1.25",
+    "morgan": "^1.10.0",
+    "openai": "^5.16.0",
+    "redis": "^4.7.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "ai",
+    "langchain",
+    "openai",
+    "microservice",
+    "task-management"
+  ],
+  "author": "",
+  "license": "MIT"
+}

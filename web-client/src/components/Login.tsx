@@ -101,6 +101,7 @@ function Login() {
               id="email"
               name="email"
               placeholder="Reccoon@study.com"
+              defaultValue="demouser001@raccoon.com"
               required
             />
           ) : (
@@ -129,6 +130,7 @@ function Login() {
             id="password"
             name="password"
             placeholder="Password"
+            defaultValue="password"
             required
           />
           <div className="login-toggle">
