@@ -24,8 +24,27 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://local
 console.log('Allowed Origins:', allowedOrigins);
 // load middlewares
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow any localhost during development
+    if (process.env.NODE_ENV !== 'production' && origin && origin.includes('localhost')) {
+      return callback(null, true);
+    }
+    
+    console.log('CORS rejected origin:', origin);
+    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+    return callback(new Error(msg), false);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Set-Cookie']
 }));
 app.use(express.json()); // automatically parse JSON request bodies
 app.use(cookieParser()); // parse cookies

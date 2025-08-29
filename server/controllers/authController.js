@@ -12,12 +12,12 @@ const loginUser = async (req, res) => {
     if (email) {
       user = await User.findOne({ email });
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(401).json({ message: 'Invalid email or password' });
       }
     } else if (phoneNumber) {
       user = await User.findOne({ phoneNumber });
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(401).json({ message: 'Invalid phone number or password' });
       }
     } else {
       return res.status(400).json({ message: 'Email or phone number is required' });
@@ -26,7 +26,7 @@ const loginUser = async (req, res) => {
     // Verify password
     const isPasswordMatching = await bcrypt.compare(password, user.pwHash);
     if (!isPasswordMatching) {
-      return res.status(401).json({ message: 'Invalid password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     // Generate JWT token
