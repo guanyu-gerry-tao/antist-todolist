@@ -226,9 +226,15 @@ export const optimisticUIUpdate = async (setState: SetStates, payload: BulkPaylo
 }
 
 export const postPayloadToServer = async (api: string, navigate: any, payload: BulkPayload) => {
+  // 构建完整的 API URL
+  const apiUrl = import.meta.env.VITE_NODE_ENV === 'production' 
+    ? import.meta.env.VITE_API_BASE_URL 
+    : 'http://localhost:3001';
+  
+  const fullApiUrl = `${apiUrl}${api}`;
 
   try {
-    const res = await fetch(api, {
+    const res = await fetch(fullApiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
