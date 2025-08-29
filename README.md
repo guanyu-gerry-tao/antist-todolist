@@ -2,6 +2,16 @@
 
 A full-stack productivity application with intelligent task processing capabilities. Built with modern web technologies including React, Node.js, and microservice architecture.
 
+## 🚀 Live Demo
+
+### **[🌐 Access the Application](https://raccoon-study-todolist.vercel.app/)**
+
+**Demo Credentials:**
+- **Email:** demouser001@raccoon.com  
+- **Password:** password
+
+*Experience the full-featured task management system with AI-powered conversation capabilities!*
+
 ## Overview
 
 This application demonstrates a complete task management solution featuring user authentication, real-time task operations, and intelligent conversation capabilities. The system is designed with a microservice architecture for scalability and maintainability.
