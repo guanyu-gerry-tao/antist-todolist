@@ -20,38 +20,12 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.error('Error connecting to MongoDB:', error);
 });
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173'];
+console.log('Allowed Origins:', allowedOrigins);
 // load middlewares
 app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
-      'http://localhost:3000', 
-      'http://localhost:5173',
-      'http://localhost:3001'
-    ];
-    
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    
-    // Allow any localhost during development
-    if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
-      return callback(null, true);
-    }
-    
-    // Allow any .vercel.app domain during development/testing
-    if (origin.includes('.vercel.app') || origin.includes('.onrender.com')) {
-      return callback(null, true);
-    }
-    
-    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-    return callback(new Error(msg), false);
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: allowedOrigins,
+  credentials: true
 }));
 app.use(express.json()); // automatically parse JSON request bodies
 app.use(cookieParser()); // parse cookies
