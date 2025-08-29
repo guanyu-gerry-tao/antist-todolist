@@ -12,7 +12,7 @@ import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import '../App.css'
 import { motion } from "motion/react";
 import './AIChatPanel.css';
-import { p } from "framer-motion/client";
+import { p, pre } from "framer-motion/client";
 import { useAppContext } from './AppContext';
 import { createBulkPayload, optimisticUIUpdate, postPayloadToServer, createBackup, restoreBackup } from '../utils/utils';
 import { useNavigate } from 'react-router-dom';
@@ -157,6 +157,7 @@ const AIChatPanel = ({ onClose }: { onClose?: () => void }) => {
         title: suggestedTask.title,
         description: suggestedTask.description || '',
         status: targetStatus.id,
+        previousStatus: targetStatus.id,
         prev: null,
         next: null,
         userId: states.userProfile.id,
