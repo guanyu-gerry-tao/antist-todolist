@@ -23,6 +23,7 @@ export type TaskType = {
   prev: TaskId | null;
   next: TaskId | null;
   userId: UserId;
+  isPending?: boolean; // Whether this is a pending AI-suggested task
 };
 export type TaskId = string;
 export type TaskData = Record<TaskId, TaskType>;

@@ -2,9 +2,9 @@
     "userAuth": {
         "adminUser001": {
             "id": "adminUser001",
-            "email": "gerry.tao@outlook.com",
-            "phoneNumber": "131058080293",
-            "pwHash": "$2a$12$ua3VEsW19wQXPWXAvP49VOtRF.URiJOK6.dgfbelSUVBem/GK1xrq",
+            "email": "demouser001@raccoon.com",
+            "phoneNumber": "11231231235",
+            "pwHash": "$2a$12$guGduLVZjOBxPAnT7ozlHOcVn2iB.OLm0xtQz8YSTwO.6o4GPiju6",
             "pwVersion": "v1",
             "salt": "random_salt",
             "createdIP": "192.168.1.1",
@@ -194,28 +194,6 @@
             "status": "status_project0_next",
             "previousStatus": "status_project0_next",
             "prev": "task87654321",
-            "next": "task98765432",
-            "userId": "adminUser001"
-        },
-        "task98765432": {
-            "id": "task98765432",
-            "title": "Node.js Server Setup",
-            "dueDate": "2025-04-12",
-            "description": "Set up a Node.js server to handle backend logic and routing.",
-            "status": "status_project0_next",
-            "previousStatus": "status_project0_next",
-            "prev": "task23456789",
-            "next": "task34567890",
-            "userId": "adminUser001"
-        },
-        "task34567890": {
-            "id": "task34567890",
-            "title": "Database Design Basics",
-            "dueDate": "2025-05-20",
-            "description": "Learn how to design efficient database schemas for your applications.",
-            "status": "status_project0_next",
-            "previousStatus": "status_project0_next",
-            "prev": "task98765432",
             "next": null,
             "userId": "adminUser001"
         },
@@ -260,17 +238,6 @@
             "status": "status_project0_later",
             "previousStatus": "status_project0_later",
             "prev": "task67890123",
-            "next": "task89012345",
-            "userId": "adminUser001"
-        },
-        "task89012345": {
-            "id": "task89012345",
-            "title": "Building Responsive Layouts",
-            "dueDate": "2025-10-20",
-            "description": "Design responsive web layouts that work on all devices.",
-            "status": "status_project0_later",
-            "previousStatus": "status_project0_later",
-            "prev": "task78901234",
             "next": null,
             "userId": "adminUser001"
         },
@@ -315,183 +282,7 @@
             "status": "status_project0_now",
             "previousStatus": "status_project0_now",
             "prev": "task11223344",
-            "next": "task33445566",
-            "userId": "adminUser001"
-        },
-        "task33445566": {
-            "id": "task33445566",
-            "title": "Optimize image loading",
-            "dueDate": "2025-02-01",
-            "description": "Improve website performance by optimizing image assets.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task22334455",
-            "next": "task44556677",
-            "userId": "adminUser001"
-        },
-        "task44556677": {
-            "id": "task44556677",
-            "title": "Fix CSS layout bugs",
-            "dueDate": "2025-02-05",
-            "description": "Resolve layout issues caused by CSS conflicts.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task33445566",
-            "next": "task55667788",
-            "userId": "adminUser001"
-        },
-        "task55667788": {
-            "id": "task55667788",
-            "title": "Improve unit test coverage",
-            "dueDate": "2025-02-10",
-            "description": "Write additional tests to increase unit test coverage.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task44556677",
-            "next": "task66778899",
-            "userId": "adminUser001"
-        },
-        "task66778899": {
-            "id": "task66778899",
-            "title": "Fix memory leaks",
-            "dueDate": "2025-02-15",
-            "description": "Identify and fix memory leaks in the application.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task55667788",
-            "next": "task77889900",
-            "userId": "adminUser001"
-        },
-        "task77889900": {
-            "id": "task77889900",
-            "title": "Resolve merge conflicts",
-            "dueDate": "2025-02-20",
-            "description": "Handle and resolve code merge conflicts from recent branches.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task66778899",
-            "next": "task88990011",
-            "userId": "adminUser001"
-        },
-        "task88990011": {
-            "id": "task88990011",
-            "title": "Fix login authentication bug",
-            "dueDate": "2025-02-25",
-            "description": "Troubleshoot and fix issues with user login authentication.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task77889900",
-            "next": "task99001122",
-            "userId": "adminUser001"
-        },
-        "task99001122": {
-            "id": "task99001122",
-            "title": "Update third-party APIs",
-            "dueDate": "2025-03-01",
-            "description": "Update integrations with third-party APIs to latest versions.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task88990011",
-            "next": "task10111213",
-            "userId": "adminUser001"
-        },
-        "task10111213": {
-            "id": "task10111213",
-            "title": "Fix pagination issues",
-            "dueDate": "2025-03-05",
-            "description": "Correct pagination logic to display items properly.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task99001122",
-            "next": "task12131415",
-            "userId": "adminUser001"
-        },
-        "task12131415": {
-            "id": "task12131415",
-            "title": "Remove console logs",
-            "dueDate": "2025-03-10",
-            "description": "Clean up code by removing unnecessary console logs.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task10111213",
-            "next": "task13141516",
-            "userId": "adminUser001"
-        },
-        "task13141516": {
-            "id": "task13141516",
-            "title": "Fix broken links",
-            "dueDate": "2025-03-15",
-            "description": "Identify and fix broken hyperlinks on the website.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task12131415",
-            "next": "task14151617",
-            "userId": "adminUser001"
-        },
-        "task14151617": {
-            "id": "task14151617",
-            "title": "Resolve CSS conflicts",
-            "dueDate": "2025-03-20",
-            "description": "Fix conflicting CSS rules that cause styling issues.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task13141516",
-            "next": "task15161718",
-            "userId": "adminUser001"
-        },
-        "task15161718": {
-            "id": "task15161718",
-            "title": "Fix server timeout errors",
-            "dueDate": "2025-03-25",
-            "description": "Investigate and fix server timeout issues affecting performance.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task14151617",
-            "next": "task16171819",
-            "userId": "adminUser001"
-        },
-        "task16171819": {
-            "id": "task16171819",
-            "title": "Update environment variables",
-            "dueDate": "2025-03-30",
-            "description": "Ensure environment variables are correctly set for all environments.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task15161718",
-            "next": "task17181920",
-            "userId": "adminUser001"
-        },
-        "task17181920": {
-            "id": "task17181920",
-            "title": "Fix API rate limiting",
-            "dueDate": "2025-04-05",
-            "description": "Resolve issues with API rate limiting causing request failures.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task16171819",
-            "next": "task18192021",
-            "userId": "adminUser001"
-        },
-        "task18192021": {
-            "id": "task18192021",
-            "title": "Resolve deployment errors",
-            "dueDate": "2025-04-10",
-            "description": "Fix errors encountered during application deployment.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task17181920",
-            "next": "task19202122",
-            "userId": "adminUser001"
-        },
-        "task19202122": {
-            "id": "task19202122",
-            "title": "Fix cross-browser compatibility",
-            "dueDate": "2025-04-15",
-            "description": "Ensure the app works consistently across different browsers.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_now",
-            "prev": "task18192021",
-            "next": "taskfsdone01",
+            "next": null,
             "userId": "adminUser001"
         },
         "taskeng001": {
@@ -601,7 +392,7 @@
             "status": "status_project1_now",
             "previousStatus": "status_project1_now",
             "prev": "taskeng009",
-            "next": "taskengdone01",
+            "next": null,
             "userId": "adminUser001"
         },
         "taskdrive001": {
@@ -711,72 +502,6 @@
             "status": "status_project2_now",
             "previousStatus": "status_project2_now",
             "prev": "taskdrive009",
-            "next": "taskdrivedone01",
-            "userId": "adminUser001"
-        },
-        "taskfsdone01": {
-            "id": "taskfsdone01",
-            "title": "Install Node.js and npm",
-            "dueDate": "2024-12-01",
-            "description": "Install Node.js and npm to prepare your development environment.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_next",
-            "prev": "task19202122",
-            "next": "taskfsdone02",
-            "userId": "adminUser001"
-        },
-        "taskfsdone02": {
-            "id": "taskfsdone02",
-            "title": "Create your first React app",
-            "dueDate": "2024-12-05",
-            "description": "Use create-react-app to scaffold your first React project.",
-            "status": "status_project0_now",
-            "previousStatus": "status_project0_next",
-            "prev": "taskfsdone01",
-            "next": null,
-            "userId": "adminUser001"
-        },
-        "taskengdone01": {
-            "id": "taskengdone01",
-            "title": "Learn the English alphabet",
-            "dueDate": "2024-12-01",
-            "description": "Memorize all 26 letters of the English alphabet.",
-            "status": "status_project1_now",
-            "previousStatus": "status_project1_next",
-            "prev": "taskeng010",
-            "next": "taskengdone02",
-            "userId": "adminUser001"
-        },
-        "taskengdone02": {
-            "id": "taskengdone02",
-            "title": "Memorize 10 basic English words",
-            "dueDate": "2024-12-03",
-            "description": "Learn and memorize 10 simple English words.",
-            "status": "status_project1_now",
-            "previousStatus": "status_project1_next",
-            "prev": "taskengdone01",
-            "next": null,
-            "userId": "adminUser001"
-        },
-        "taskdrivedone01": {
-            "id": "taskdrivedone01",
-            "title": "Identify car pedals",
-            "dueDate": "2024-12-01",
-            "description": "Learn to identify the accelerator, brake, and clutch pedals in a car.",
-            "status": "status_project2_now",
-            "previousStatus": "status_project2_next",
-            "prev": "taskdrive010",
-            "next": "taskdrivedone02",
-            "userId": "adminUser001"
-        },
-        "taskdrivedone02": {
-            "id": "taskdrivedone02",
-            "title": "Learn how to fasten seatbelt",
-            "dueDate": "2024-12-03",
-            "description": "Practice fastening and unfastening the seatbelt in a car.",
-            "status": "status_project2_now",
-            "previousStatus": "status_project2_next",
-            "prev": "taskdrivedone01",
             "next": null,
             "userId": "adminUser001"
         }

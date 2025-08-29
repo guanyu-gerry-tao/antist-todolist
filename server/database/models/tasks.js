@@ -9,7 +9,8 @@ const taskSchema = new mongoose.Schema({
   previousStatus: { type: String, ref: 'Status' },
   prev: { type: String, ref: 'Task' },
   next: { type: String, ref: 'Task' },
-  userId: { type: String, ref: 'UserAuth', required: true }
+  userId: { type: String, ref: 'UserAuth', required: true },
+  isPending: { type: Boolean, default: false }
 }, { timestamps: true, strict: 'throw' });
 
 module.exports = mongoose.model('Task', taskSchema);
