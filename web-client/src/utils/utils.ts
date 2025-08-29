@@ -1,9 +1,6 @@
-import { th } from 'motion/react-client';
-import type { TaskType, ProjectType, StatusType, BulkPayload, TaskData, ProjectData, StatusData, UserProfileData } from './type.ts';
+
+import type { TaskType, ProjectType, BulkPayload, UserProfileData } from './type.ts';
 import type { States, SetStates } from './states.ts';
-import type { Updater } from 'use-immer';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 
 /**
@@ -200,7 +197,20 @@ export const optimisticUIUpdate = async (setState: SetStates, payload: BulkPaylo
         }
       });
     } else if (op.type === 'status') {
-      // TODO: handle status operations
+      setState.setStatuses((draft) => {
+        if (op.operation === 'add') {
+          const statusData = op.data as any; // Temporarily use any to avoid type issues
+          draft[statusData.id] = { ...statusData };
+        } else if (op.operation === 'update') {
+          const { id, updatedFields } = op.data as { id: string; updatedFields: any };
+          if (draft[id]) {
+            Object.assign(draft[id], updatedFields);
+          }
+        } else if (op.operation === 'delete') {
+          const { id } = op.data as { id: string };
+          delete draft[id];
+        }
+      });
     } else if (op.type === 'userProfile') {
       setState.setUserProfile((draft) => {
         if (op.operation === 'update') {

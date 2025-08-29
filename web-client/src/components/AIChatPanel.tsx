@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   MainContainer,
   ChatContainer,
@@ -6,17 +6,15 @@ import {
   Message,
   MessageInput,
   TypingIndicator,
-  Avatar
 } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import '../App.css'
 import { motion } from "motion/react";
 import './AIChatPanel.css';
-import { p, pre } from "framer-motion/client";
 import { useAppContext } from './AppContext';
 import { createBulkPayload, optimisticUIUpdate, postPayloadToServer, createBackup, restoreBackup } from '../utils/utils';
 import { useNavigate } from 'react-router-dom';
-import type { TaskType } from "../utils/type";
+import type { TaskType } from '../utils/type';
 
 interface ChatMessage {
   message: string;
@@ -118,7 +116,7 @@ const AIChatPanel = ({ onClose }: { onClose?: () => void }) => {
           const backup = createBackup(states, bulkPayload);
 
           try {
-            const taskId = actions.addTask(newTask, backup, false);
+            actions.addTask(newTask, backup, false);
             optimisticUIUpdate(setStates, backup);
             await postPayloadToServer('/api/bulk', navigate, backup);
             
@@ -171,7 +169,7 @@ const AIChatPanel = ({ onClose }: { onClose?: () => void }) => {
 
       // Create bulk payload for the new task
       const bulkPayload = createBulkPayload();
-      const taskId = actions.addTask(newTask, bulkPayload, true);
+      actions.addTask(newTask, bulkPayload, true);
       
       // Send to server
       const apiUrl = import.meta.env.VITE_NODE_ENV === 'production' 

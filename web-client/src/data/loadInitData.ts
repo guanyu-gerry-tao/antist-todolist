@@ -1,6 +1,5 @@
-import data from './testListChain.json';
-import type { ProjectData, StatusData, TaskData, UserId, UserProfileData, TaskType, ProjectType, StatusType } from '../utils/type.ts';
-import { useNavigate } from 'react-router-dom'; 
+
+import type { ProjectData, StatusData, TaskData, UserProfileData, TaskType, ProjectType, StatusType } from '../utils/type.ts';
 
 // const devUserId = import.meta.env.VITE_DEV_USERID; // TODO: after development, remove this line and use the user ID from the server
 // if (!devUserId) {

@@ -4,7 +4,6 @@ import './AddNewProject.css'
 import type { ProjectType } from '../utils/type.ts'
 import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
 import { useAppContext } from './AppContext.tsx';
-import { animate } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 /**

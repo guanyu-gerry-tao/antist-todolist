@@ -71,6 +71,12 @@ class IPRateLimiter {
       // Log the request for debugging
       console.log(`Rate limiter check for IP: ${clientIP}`);
       
+      // 在开发环境下完全跳过速率限制
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Development mode: skipping rate limit for IP ${clientIP}`);
+        return next();
+      }
+      
       // Skip rate limiting for whitelisted IPs
       if (this.isWhitelisted(clientIP)) {
         console.log(`IP ${clientIP} is whitelisted, skipping rate limit`);

@@ -1,14 +1,5 @@
 // web-client/src/components/type.ts
-
-import type { DragStart, DragUpdate, DropResult, ResponderProvided } from "@hello-pangea/dnd";
-import type { Updater } from "use-immer";
-
 // using semanic types for better clarity and maintainability
-
-
-
-
-
 
 /**
  * Task represents a single task in the todo list.

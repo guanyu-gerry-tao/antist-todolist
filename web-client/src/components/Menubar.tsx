@@ -1,10 +1,6 @@
-import { act, useState } from 'react'
 import '../App.css'
 import './Menubar.css'
 
-import ProjectButton from './ProjectButton.tsx'
-import { useImmer } from 'use-immer'
-import TaskDropArea from './TaskDropArea.tsx'
 import ProjectPanel from './ProjectPanel.tsx'
 
 import { useAppContext } from './AppContext.tsx'
@@ -23,7 +19,7 @@ import { useAppContext } from './AppContext.tsx'
 function Menubar() {
 
   // Use the AppContext to access the global state and actions
-  const { states, setStates, actions } = useAppContext();
+  const { states, setStates } = useAppContext();
 
   /**
    * Handle click event for the delete tasks button.

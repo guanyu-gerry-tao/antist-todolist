@@ -1,11 +1,8 @@
-import { useLayoutEffect } from "react";
-import type { UserProfileData, TaskId, TaskType, TaskData, ProjectId, ProjectType, ProjectData, StatusId, StatusType, StatusData, BulkPayload, UserId } from "./type.ts";
+import type { TaskId, TaskType, ProjectId, ProjectType, StatusId, StatusType, BulkPayload, UserId } from "./type.ts";
 import type { States, SetStates } from "./states.ts";
 import { sortChain, createBulkPayload, optimisticUIUpdate, postPayloadToServer, createBackup, restoreBackup } from './utils.ts';
 import type { DragDropContextProps, DragStart, DragUpdate, DropResult, ResponderProvided } from '@hello-pangea/dnd';
 import { animate } from 'motion';
-import { nav } from "framer-motion/client";
-import { Navigate } from "react-router-dom";
 
 export const createActions = (states: States, setStates: SetStates): Actions => {
 
@@ -342,6 +339,158 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
   }
 
   /**
+   * Function to add a new status to the status list.
+   * It generates a unique ID for the new status, adds it to the statuses state,
+   * and maintains the linked list order.
+   * @param newStatus - The new status item to be added - without an ID - ID will be generated automatically.
+   * @param bulkPayload - The bulk payload to be used for the add operation.
+   * @param addWithAnimation - Whether to add animation when adding the status.
+   * @returns The ID of the newly added status.
+   */
+  const addStatus = (newStatus: Omit<StatusType, 'id'>, bulkPayload: BulkPayload, addWithAnimation: boolean = false): StatusId => {
+    const id = crypto.randomUUID(); // Generate a unique ID for the new status
+    const projectStatuses = Object.fromEntries(Object.entries(states.statuses).filter(([_, s]) => s.project === newStatus.project));
+    const sortedProjectStatuses = sortChain(projectStatuses);
+    
+    // Generate a unique ID for the new status:
+    const newStatusWithId: StatusType = ({
+      ...newStatus,
+      id: id
+    });
+
+    // If prev and next are explicitly provided, use them directly
+    // Otherwise, calculate the position based on the current status chain
+    if (newStatus.prev !== undefined && newStatus.next !== undefined) {
+      // User explicitly provided prev and next, use them as-is
+      // No need to recalculate
+    } else {
+      // Calculate position when prev/next are not fully specified
+      let index: number = 0;
+      if (newStatusWithId.prev && sortedProjectStatuses.map(status => status[0]).includes(newStatusWithId.prev)) {
+        index = sortedProjectStatuses.findIndex(status => status[0] === newStatusWithId.prev) + 1;
+      } else if (newStatusWithId.next && sortedProjectStatuses.map(status => status[0]).includes(newStatusWithId.next)) {
+        index = sortedProjectStatuses.findIndex(status => status[0] === newStatusWithId.next);
+      } else {
+        index = sortedProjectStatuses.length; // Default to the end of the statuses
+      }
+
+      // set the prev and next correctly:
+      if (index === 0) {
+        newStatusWithId.prev = null; // No previous status
+        newStatusWithId.next = sortedProjectStatuses.length > 0 ? sortedProjectStatuses[0][0] : null; // First status in the project
+      } else if (index === sortedProjectStatuses.length) {
+        newStatusWithId.prev = sortedProjectStatuses[sortedProjectStatuses.length - 1][0]; // Last status in the project
+        newStatusWithId.next = null; // No next status
+      } else {
+        newStatusWithId.prev = sortedProjectStatuses[index - 1][0]; // Previous status in the project
+        newStatusWithId.next = sortedProjectStatuses[index][0]; // Next status in the project
+      }
+    }
+
+    // add to payload:
+    bulkPayload.ops.push({
+      type: 'status',
+      operation: 'add',
+      data: newStatusWithId
+    });
+
+    // update surrounding statuses' prev and next:
+    if (newStatusWithId.prev) {
+      bulkPayload.ops.push({
+        type: 'status',
+        operation: 'update',
+        data: {
+          id: newStatusWithId.prev,
+          updatedFields: { next: newStatusWithId.id }
+        }
+      });
+    };
+    if (newStatusWithId.next) {
+      bulkPayload.ops.push({
+        type: 'status',
+        operation: 'update',
+        data: {
+          id: newStatusWithId.next,
+          updatedFields: { prev: newStatusWithId.id }
+        }
+      });
+    };
+
+    console.log(`addStatus: payload: ${JSON.stringify(bulkPayload)}`);
+    if (addWithAnimation) {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          animate(el, { opacity: [0, 1], }, { duration: 0.3 }); // Animate the new status to fade in
+          animate(el, { width: ["0px", el.scrollWidth] }, { duration: 0.2 }); // Animate the new status to slide in
+        }
+      });
+    }
+    return id;
+  };
+
+  /**
+   * Function to delete a status from the status list.
+   * This function will permanently remove the status and all tasks in it.
+   * It finds the status by its ID and removes it from the statuses state.
+   * @param statusId - The ID of the status to be deleted.
+   * @param bulkPayload - The bulk payload to be used for the delete operation.
+   */
+  const deleteStatus = (statusId: StatusId, bulkPayload: BulkPayload) => {
+    // Check if the status exists before deleting it
+    if (!states.statuses[statusId]) {
+      throw new Error(`Status with id ${statusId} not found. Cannot delete.`);
+    }
+
+    const deletedStatus = states.statuses[statusId];
+    const deletedStatusPrev = deletedStatus.prev;
+    const deletedStatusNext = deletedStatus.next;
+
+    console.log(`deleteStatus: Deleting status with id ${statusId}, prev: ${deletedStatusPrev}, next: ${deletedStatusNext}`);
+
+    // Add the deleted status to the bulk payload
+    bulkPayload.ops.push({
+      type: 'status',
+      operation: 'delete',
+      data: { id: statusId }
+    });
+
+    // update the prev and next of the surrounding statuses:
+    if (deletedStatusPrev) {
+      bulkPayload.ops.push({
+        type: 'status',
+        operation: 'update',
+        data: {
+          id: deletedStatusPrev,
+          updatedFields: { next: deletedStatusNext } // Update the next status of the previous status
+        }
+      });
+    }
+    if (deletedStatusNext) {
+      bulkPayload.ops.push({
+        type: 'status',
+        operation: 'update',
+        data: {
+          id: deletedStatusNext,
+          updatedFields: { prev: deletedStatusPrev } // Update the previous status of the next status
+        }
+      });
+    }
+
+    // Also delete all tasks in the status
+    const tasksInStatus = Object.entries(states.tasks).filter(([_, task]) => {
+      return task.status === statusId && task.userId === states.userProfile.id;
+    });
+    for (const [taskId, _] of tasksInStatus) {
+      bulkPayload.ops.push({
+        type: 'task',
+        operation: 'delete',
+        data: { id: taskId } // Add the task ID to the bulk payload for deletion
+      });
+    }
+  };
+
+  /**
    * Function to add a new project to the project list.
    * It generates a unique ID for the new project, adds it to the projects state,
    * and reindexs the projects based on their order.
@@ -404,6 +553,50 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     }
 
     focusProject(newProjectWithId.id, bulkPayload); // Focus on the new project
+
+    // Automatically create default statuses for the new project: "now", "next", "later"
+    const defaultStatuses = [
+      { title: "Now", description: "Currently working on", color: "#e8fdec" },
+      { title: "Next", description: "Up next", color: "#f0f1fd" },
+      { title: "Later", description: "Future tasks", color: "#fff8e8" }
+    ];
+
+    // Create statuses with proper linking
+    const statusIds: StatusId[] = [];
+    for (let i = 0; i < defaultStatuses.length; i++) {
+      const statusData = defaultStatuses[i];
+      const statusId = crypto.randomUUID(); // Pre-generate the ID
+      statusIds.push(statusId);
+      
+      const prevStatusId = i > 0 ? statusIds[i - 1] : null;
+      
+      bulkPayload.ops.push({
+        type: 'status',
+        operation: 'add',
+        data: {
+          id: statusId,
+          title: statusData.title,
+          description: statusData.description,
+          color: statusData.color,
+          project: newProjectWithId.id,
+          prev: prevStatusId,
+          next: null, // Will be set correctly in the next loop
+          userId: states.userProfile.id as UserId
+        }
+      });
+    }
+
+    // Now update the next pointers
+    for (let i = 0; i < statusIds.length - 1; i++) {
+      bulkPayload.ops.push({
+        type: 'status',
+        operation: 'update',
+        data: {
+          id: statusIds[i],
+          updatedFields: { next: statusIds[i + 1] }
+        }
+      });
+    }
 
     if (addWithAnimation) {
       requestAnimationFrame(() => {
@@ -598,6 +791,18 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
         type: 'task',
         operation: 'delete',
         data: { id: taskId } // Add the task ID to the bulk payload for deletion
+      });
+    }
+
+    // Also delete all statuses in the project
+    const statusesInProject = Object.entries(states.statuses).filter(([_, status]) => {
+      return status.project === projectId && status.userId === states.userProfile.id;
+    });
+    for (const [statusId, _] of statusesInProject) {
+      bulkPayload.ops.push({
+        type: 'status',
+        operation: 'delete',
+        data: { id: statusId } // Add the status ID to the bulk payload for deletion
       });
     }
 
@@ -882,6 +1087,8 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     hardDeleteTask,
     moveTask,
     focusProject,
+    addStatus,
+    deleteStatus,
     addProject,
     updateProject,
     moveProject,
@@ -899,6 +1106,8 @@ export type Actions = {
   hardDeleteTask: (id: TaskId, bulkPayload: BulkPayload) => void;
   moveTask: (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload, moveWithAnimation?: boolean) => void;
   focusProject: (projectId: ProjectId | null, bulkPayload: BulkPayload) => void; // Focuses on a specific project, updating the user profile with the last interacted project ID
+  addStatus: (newStatus: Omit<StatusType, 'id'>, bulkPayload: BulkPayload, addWithAnimation?: boolean) => StatusId; // Returns the ID of the newly added status
+  deleteStatus: (statusId: StatusId, bulkPayload: BulkPayload) => void; // Deletes a status and all tasks in it
   addProject: (newProject: Omit<ProjectType, 'id'>, bulkPayload: BulkPayload, addWithAnimation?: boolean) => ProjectId; // Returns the ID of the newly added project
   updateProject: (id: ProjectId, updatedFields: Partial<ProjectType>, bulkPayload: BulkPayload) => void;
   moveProject: (id: ProjectId, index: number, bulkPayload: BulkPayload) => void;

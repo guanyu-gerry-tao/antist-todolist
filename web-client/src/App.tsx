@@ -1,7 +1,5 @@
 import './App.css';
 
-import { AppContext } from './components/AppContext.tsx';
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import Todolist from './components/Todolist.tsx';

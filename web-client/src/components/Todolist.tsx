@@ -7,12 +7,8 @@ import TodoColumn from './TodoColumn.tsx'
 import AIChatPanel from './AIChatPanel.tsx'
 
 import type { StatusData, StatusType } from '../utils/type.ts'
-import type { States } from '../utils/states.ts'
-import { useImmer } from 'use-immer'
-import TaskDropArea from './TaskDropArea.tsx'
 import { sortChain } from '../utils/utils.ts';
-import { useAppContext } from './AppContext.tsx';
-import { useState, useRef, useEffect, use } from 'react';
+import { useEffect } from 'react';
 
 
 
@@ -22,7 +18,7 @@ import { DragDropContext } from '@hello-pangea/dnd';
 import { loadAllData } from '../data/loadInitData.ts'
 import { AppContext } from '../components/AppContext.tsx';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'motion/react';
+import { motion } from 'motion/react';
 
 /**
  * Todolist component represents the main todo list interface.
@@ -144,7 +140,7 @@ function Todolist() {
                 status={`${states.userProfile.lastProjectId}-completed`}
               />
             )}
-            {statusesSorted.map(([key, status]) => (
+            {statusesSorted.map(([_, status]) => (
               <TodoColumn key={status.id} title={status.title}
                 bgColor={status.color}
                 status={status.id}

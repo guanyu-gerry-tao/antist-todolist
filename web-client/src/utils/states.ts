@@ -1,5 +1,4 @@
 import { useImmer, type Updater } from "use-immer";
-import { useEffect } from "react";
 import type { TaskData, ProjectData, UserProfileData, StatusData, TaskId, ProjectId } from "./type";
 
 export const createStatesAndSetStates = (): [States, SetStates] => {

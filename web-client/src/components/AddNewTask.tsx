@@ -1,14 +1,10 @@
 import '../App.css'
 import './AddNewTask.css'
 
-import type { ProjectId, TaskId, TaskType } from '../utils/type.ts';
-
 import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
-
-import Project from './ProjectButton.tsx'
 import { useAppContext } from './AppContext.tsx';
-import { animate, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import type { StatusId } from '../utils/type.ts';
 
 /**
  * AddNewTask component allows users to add a new task by typing in an input field.
@@ -17,12 +13,12 @@ import { useNavigate } from 'react-router-dom';
  * @newOrder - The order number for the new task, used to determine its position in the list.
  * @currentProjectID - The ID of the current project to which the new task will be added.
  */
-function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [TaskId, TaskType][], }) {
+function AddNewTask({ status }: { status: StatusId }) {
 
   const navigate = useNavigate();
 
   // Use the AppContext to access the global state and actions
-  const { states, actions, setStates } = useAppContext();
+  const { states, setStates, actions } = useAppContext();
 
   /**
    * This function handles keyboard events in the input field.
@@ -49,7 +45,7 @@ function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [Ta
         const backup = createBackup(states, bulkPayload); // Create a backup of the current state
 
         try {
-          const id = await actions.addTask(newTask, backup, false); // Call the addTask function from actions with the new task
+          await actions.addTask(newTask, backup, false); // Call the addTask function from actions with the new task
           optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task
           await postPayloadToServer('/api/bulk', navigate, backup); // Send the new task to the server
         }

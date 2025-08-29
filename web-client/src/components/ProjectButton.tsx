@@ -1,15 +1,13 @@
-import { useRef, useState, useEffect, act } from 'react'
+import { useRef, useState } from 'react'
 
 import '../App.css'
 import './ProjectButton.css'
 
 import type { ProjectType, ProjectId } from '../utils/type'
-import { Draggable } from '@hello-pangea/dnd'
 import { useAppContext } from './AppContext'
 import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
 import { motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
-import { i } from 'framer-motion/client'
 
 /**
  * This function is used to get the style of the project button when it is being dragged
@@ -17,16 +15,16 @@ import { i } from 'framer-motion/client'
  * @param snapshot - The snapshot of the drag state, provides information about the drag state, provided by the Draggable component
  * @returns The updated style for the project button, used in the Draggable component.
  */
-function getStyle(style: any, snapshot: any) {
-  if (snapshot.isDragging) {
-    return {
-      ...style,
-      boxShadow: `rgba(114, 114, 114, 0.5) 0px 5px 10px 5px`,
-      opacity: 0.5,
-    }
-  }
-  return style
-}
+// function getStyle(style: any, snapshot: any) {
+//   if (snapshot.isDragging) {
+//     return {
+//       ...style,
+//       boxShadow: `rgba(114, 114, 114, 0.5) 0px 5px 10px 5px`,
+//       opacity: 0.5,
+//     }
+//   }
+//   return style
+// }
 
 /**
  * ProjectButton component represents a single project button in the project panel.
@@ -39,11 +37,9 @@ function getStyle(style: any, snapshot: any) {
  */
 function ProjectButton({
   project,
-  projects,
   currentProjectID, }:
   {
     project: [ProjectId, ProjectType],
-    projects: [ProjectId, ProjectType][],
     currentProjectID: ProjectId | null,
   }) {
 

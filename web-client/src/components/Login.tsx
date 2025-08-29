@@ -7,7 +7,6 @@ import { useState, useEffect } from 'react';
 import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
 
-import metadata from 'libphonenumber-js/metadata.full.json'
 import examples from 'libphonenumber-js/examples.mobile.json';
 import { getExampleNumber } from 'libphonenumber-js'
 import type { CountryCode } from 'libphonenumber-js';
@@ -28,9 +27,9 @@ function Login() {
   const [isPhoneNumberValid, setIsPhoneNumberValid] = useState<boolean>(true);
   const [errorText, setErrorText] = useState<string | undefined>(undefined);
 
-  function isValidEmail(email: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
+  // function isValidEmail(email: string): boolean {
+  //   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  // }
 
   const handlePressLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -58,7 +57,7 @@ function Login() {
       const apiUrl = import.meta.env.VITE_NODE_ENV === 'production' 
       ? import.meta.env.VITE_API_BASE_URL 
       : 'http://localhost:3001';
-      
+
       const res = await fetch(`${apiUrl}/api/login`, {
         method: 'POST',
         headers: {

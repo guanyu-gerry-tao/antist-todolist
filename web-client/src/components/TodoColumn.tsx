@@ -7,8 +7,7 @@ import Task from './Task.tsx';
 import { Droppable } from '@hello-pangea/dnd';
 import { sortChain } from '../utils/utils.ts';
 import { useAppContext } from './AppContext.tsx';
-import { motion, AnimatePresence, setStyle } from 'motion/react';
-import { i } from 'framer-motion/client';
+import { motion, AnimatePresence } from 'motion/react';
 
 /**
  * TodoColumn component represents a single column in the Kanban board.
@@ -30,7 +29,7 @@ function TodoColumn({
 }) {
 
   // Use the AppContext to access the global state and actions
-  const { states, setStates } = useAppContext();
+  const { states } = useAppContext();
 
   const tasks = Object.fromEntries(Object.entries(states.tasks).filter(([, task]) => (task as TaskType).status === status));
   console.log("tasks in TodoColumn", tasks);
@@ -85,7 +84,7 @@ function TodoColumn({
                   {provided.placeholder}
 
                   {!status.endsWith('-completed') && !status.endsWith('-deleted') &&
-                    <AddNewTask status={status} tasksSorted={tasksSorted} />
+                    <AddNewTask status={status} />
                   }
                   <div style={{ height: "20px" }}></div>
 

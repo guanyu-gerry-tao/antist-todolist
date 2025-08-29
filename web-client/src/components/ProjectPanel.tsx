@@ -1,8 +1,6 @@
 import '../App.css'
 import './ProjectPanel.css';
 
-import { useImmer } from 'use-immer';
-import { Droppable } from '@hello-pangea/dnd';
 import ProjectButton from './ProjectButton.tsx';
 import type { ProjectType } from '../utils/type.ts';
 import AddNewProject from './AddNewProject.tsx';
@@ -16,13 +14,7 @@ import { useAppContext } from './AppContext.tsx';
 function ProjectPanel() {
 
   // Use the AppContext to access the global state and actions
-  const { states, actions } = useAppContext();
-
-  const handleDragEnd = (result: any) => {
-    // Handle the drag end event to reorder projects
-    // placeholder for drag end logic, not implemented yet
-  };
-
+  const { states } = useAppContext();
 
   /**
    * Get the projects sorted
@@ -44,7 +36,7 @@ function ProjectPanel() {
       <div id='projectPanel' className='projectPanelContainer'>
         <div className='projectPanelDroppable'>
           {projectsSorted.map((project) => (
-            <ProjectButton key={project[0]} projects={projectsSorted} project={project} currentProjectID={states.userProfile.lastProjectId} />
+            <ProjectButton key={project[0]} project={project} currentProjectID={states.userProfile.lastProjectId} />
           ))}
 
           {/* AddNewProject is added at the end of the project list */}
