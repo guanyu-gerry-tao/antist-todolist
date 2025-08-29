@@ -16,6 +16,7 @@ import { p, pre } from "framer-motion/client";
 import { useAppContext } from './AppContext';
 import { createBulkPayload, optimisticUIUpdate, postPayloadToServer, createBackup, restoreBackup } from '../utils/utils';
 import { useNavigate } from 'react-router-dom';
+import type { TaskType } from "../utils/type";
 
 interface ChatMessage {
   message: string;
@@ -153,16 +154,15 @@ const AIChatPanel = ({ onClose }: { onClose?: () => void }) => {
       }
 
       // Create task using the existing action system
-      const newTask = {
+      const newTask: Omit<TaskType, 'id'> = {
         title: suggestedTask.title,
         description: suggestedTask.description || '',
         status: targetStatus.id,
         previousStatus: targetStatus.id,
         prev: null,
         next: null,
-        userId: states.userProfile.id,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        userId: states.userProfile.id || '',
+        dueDate: null
       };
 
       // Create bulk payload for the new task
