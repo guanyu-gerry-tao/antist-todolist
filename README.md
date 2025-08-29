@@ -7,8 +7,8 @@ A full-stack productivity application with intelligent task processing capabilit
 ### **[🌐 Access the Application](https://raccoon-study-todolist.vercel.app/)**
 
 **Demo Credentials:**
-- **Email:** demouser001@raccoon.com  
-- **Password:** password
+- **Email and password**: please use default in login page
+- **Please allow 20 seconds loading for the first use as Render Spin Down needs time to be active**
 
 *Experience the full-featured task management system with AI-powered conversation capabilities!*
 
